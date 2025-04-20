@@ -1,4 +1,4 @@
-import { CartPage } from "./components/CartPage.tsx";
+import { CartPage } from "./components/cart/CartPage.tsx";
 import { AdminPage } from "./components/AdminPage.tsx";
 import { useAdmin } from "./hooks/useAdmin.ts";
 import { PAGE_LABELS } from "./constants/pageLabels.ts";
