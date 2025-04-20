@@ -1,21 +1,51 @@
 import { CartItem, Coupon } from "../../types";
 
 export const calculateItemTotal = (item: CartItem) => {
-  return 0;
+  const basePrice = item.product.price * item.quantity;
+  const discountRate = 1 - getMaxApplicableDiscount(item);
+
+  return basePrice * discountRate;
 };
 
 export const getMaxApplicableDiscount = (item: CartItem) => {
-  return 0;
+  return item.product.discounts.reduce((maxRate, discount) => {
+    if (item.quantity >= discount.quantity) {
+      return Math.max(maxRate, discount.rate);
+    }
+
+    return maxRate;
+  }, 0);
 };
 
 export const calculateCartTotal = (
   cart: CartItem[],
   selectedCoupon: Coupon | null
 ) => {
+  const totalBeforeDiscount = cart.reduce((acc, item) => {
+    return acc + item.product.price * item.quantity;
+  }, 0);
+
+  const totalAfterProductDiscount = cart.reduce((acc, item) => {
+    return acc + calculateItemTotal(item);
+  }, 0);
+
+  const couponDiscount = () => {
+    if (!selectedCoupon) return 0;
+
+    if (selectedCoupon.discountType === "percentage") {
+      return totalAfterProductDiscount * (selectedCoupon.discountValue / 100);
+    }
+
+    return selectedCoupon.discountValue;
+  }
+
+  const totalAfterDiscount = totalAfterProductDiscount - couponDiscount();
+  const totalDiscount = totalBeforeDiscount - totalAfterDiscount;
+
   return {
-    totalBeforeDiscount: 0,
-    totalAfterDiscount: 0,
-    totalDiscount: 0,
+    totalBeforeDiscount,
+    totalAfterDiscount,
+    totalDiscount,
   };
 };
 
@@ -24,5 +54,17 @@ export const updateCartItemQuantity = (
   productId: string,
   newQuantity: number
 ): CartItem[] => {
-  return [];
+  return cart.map((item) => {
+    if (item.product.id !== productId) return item;
+
+    if (newQuantity === 0) {
+      return null;
+    }
+
+    if (newQuantity > item.product.stock) {
+      return { ...item, quantity: item.product.stock };
+    }
+
+    return { ...item, quantity: newQuantity };
+  }).filter((item) => item !== null);
 };
