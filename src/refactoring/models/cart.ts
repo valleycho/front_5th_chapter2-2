@@ -54,17 +54,14 @@ export const updateCartItemQuantity = (
   productId: string,
   newQuantity: number
 ): CartItem[] => {
+  if (newQuantity === 0) {
+    return cart.filter((item) => item.product.id !== productId);
+  }
+
   return cart.map((item) => {
     if (item.product.id !== productId) return item;
 
-    if (newQuantity === 0) {
-      return null;
-    }
-
-    if (newQuantity > item.product.stock) {
-      return { ...item, quantity: item.product.stock };
-    }
-
-    return { ...item, quantity: newQuantity };
-  }).filter((item) => item !== null);
+    const limitedQuantity = Math.min(newQuantity, item.product.stock);
+    return { ...item, quantity: limitedQuantity };
+  });
 };

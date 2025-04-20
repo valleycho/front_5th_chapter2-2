@@ -19,5 +19,9 @@ export const initialCoupons: Coupon[] = [
 export const useCoupons = (initialCoupons: Coupon[]) => {
   const [coupons, setCoupons] = useState<Coupon[]>(initialCoupons);
 
-  return { coupons, addCoupon: () => undefined };
+  const addCoupon = (coupon: Coupon) => {
+    setCoupons([...coupons, coupon]);
+  };
+
+  return { coupons, addCoupon };
 };

@@ -7,19 +7,39 @@ export const useCart = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
-  const addToCart = (product: Product) => {};
+  const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } = calculateCartTotal(cart, selectedCoupon);
 
-  const removeFromCart = (productId: string) => {};
+  const addToCart = (product: Product) => {
+    setCart([...cart, { product, quantity: 1 }]);
+  };
 
-  const updateQuantity = (productId: string, newQuantity: number) => {};
+  const removeFromCart = (productId: string) => {
+    setCart(prevCart => {
+      const removedItem = prevCart.filter((item) => item.product.id !== productId)
 
-  const applyCoupon = (coupon: Coupon) => {};
+      return removedItem;
+    });
+  };
 
-  const calculateTotal = () => ({
-    totalBeforeDiscount: 0,
-    totalAfterDiscount: 0,
-    totalDiscount: 0,
-  });
+  const updateQuantity = (productId: string, newQuantity: number) => {
+    setCart(prevCart => {
+      const updatedCart = updateCartItemQuantity(prevCart, productId, newQuantity);
+
+      return updatedCart;
+    });
+  };
+
+  const applyCoupon = (coupon: Coupon) => {
+    setSelectedCoupon(coupon);
+  };
+
+  const calculateTotal = () => {
+    return {
+      totalBeforeDiscount,
+      totalAfterDiscount,
+      totalDiscount,
+    };
+  };
 
   return {
     cart,
