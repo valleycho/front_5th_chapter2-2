@@ -1,11 +1,16 @@
-import { CartItem, Product } from "../../../types.ts";
+import { CartItem, Coupon, Product } from "../../types.ts";
 import {
   initialCoupons,
   initialProducts,
   useCart,
   useCoupons,
   useProducts,
-} from "../../hooks/index.ts";
+} from "../hooks";
+
+// interface Props {
+//   products: Product[];
+//   coupons: Coupon[];
+// }
 
 export const CartPage = () => {
   const { products } = useProducts(initialProducts);
