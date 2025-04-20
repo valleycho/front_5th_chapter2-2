@@ -10,7 +10,19 @@ export const useCart = () => {
   const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } = calculateCartTotal(cart, selectedCoupon);
 
   const addToCart = (product: Product) => {
-    setCart([...cart, { product, quantity: 1 }]);
+    setCart(prevCart => {
+      const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
+      const isExistingItem = existingItemIndex !== -1;
+
+      if (isExistingItem) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex].quantity += 1;
+        
+        return updatedCart;
+      }
+      
+      return [...prevCart, { product, quantity: 1 }];
+    })
   };
 
   const removeFromCart = (productId: string) => {
