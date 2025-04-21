@@ -11,12 +11,12 @@ export const useCart = () => {
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
-      const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
-      const isExistingItem = existingItemIndex !== -1;
+      const existingItem = prevCart.find(item => item.product.id === product.id);
 
-      if (isExistingItem) {
-        const updatedCart = [...prevCart];
-        updatedCart[existingItemIndex].quantity += 1;
+      if (existingItem) {
+        const updatedCart = prevCart.map(item =>
+          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
         
         return updatedCart;
       }
