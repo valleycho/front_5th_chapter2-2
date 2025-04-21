@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Coupon, Discount, Product } from "../../../types";
-import { useRegisterCoupon } from "../../hooks";
+import { Coupon, Product } from "../../../types";
+import { useDiscount, useRegisterCoupon } from "../../hooks";
 
 interface Props {
   products: Product[];
@@ -18,13 +18,15 @@ export const AdminPage = ({
   onCouponAdd,
 }: Props) => {
   const { newCoupon, setNewCoupon, handleAddCoupon } = useRegisterCoupon();
+  const {
+    newDiscount,
+    setNewDiscount,
+    handleAddDiscount,
+    handleRemoveDiscount,
+  } = useDiscount();
 
   const [openProductIds, setOpenProductIds] = useState<Set<string>>(new Set());
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [newDiscount, setNewDiscount] = useState<Discount>({
-    quantity: 0,
-    rate: 0,
-  });
 
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
@@ -79,31 +81,6 @@ export const AdminPage = ({
     const updatedProduct = products.find((p) => p.id === productId);
     if (updatedProduct) {
       const newProduct = { ...updatedProduct, stock: newStock };
-      onProductUpdate(newProduct);
-      setEditingProduct(newProduct);
-    }
-  };
-
-  const handleAddDiscount = (productId: string) => {
-    const updatedProduct = products.find((p) => p.id === productId);
-    if (updatedProduct && editingProduct) {
-      const newProduct = {
-        ...updatedProduct,
-        discounts: [...updatedProduct.discounts, newDiscount],
-      };
-      onProductUpdate(newProduct);
-      setEditingProduct(newProduct);
-      setNewDiscount({ quantity: 0, rate: 0 });
-    }
-  };
-
-  const handleRemoveDiscount = (productId: string, index: number) => {
-    const updatedProduct = products.find((p) => p.id === productId);
-    if (updatedProduct) {
-      const newProduct = {
-        ...updatedProduct,
-        discounts: updatedProduct.discounts.filter((_, i) => i !== index),
-      };
       onProductUpdate(newProduct);
       setEditingProduct(newProduct);
     }
@@ -277,7 +254,13 @@ export const AdminPage = ({
                               </span>
                               <button
                                 onClick={() =>
-                                  handleRemoveDiscount(product.id, index)
+                                  handleRemoveDiscount(
+                                    product.id,
+                                    index,
+                                    products,
+                                    onProductUpdate,
+                                    setEditingProduct
+                                  )
                                 }
                                 className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                               >
@@ -311,7 +294,15 @@ export const AdminPage = ({
                               className="w-1/3 p-2 border rounded"
                             />
                             <button
-                              onClick={() => handleAddDiscount(product.id)}
+                              onClick={() =>
+                                handleAddDiscount(
+                                  product.id,
+                                  products,
+                                  onProductUpdate,
+                                  editingProduct,
+                                  setEditingProduct
+                                )
+                              }
                               className="w-1/3 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                             >
                               할인 추가
