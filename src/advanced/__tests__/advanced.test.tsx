@@ -16,7 +16,10 @@ import {
   getAppliedDiscount,
   getMaxDiscount,
 } from "../../refactoring/hooks/utils/discountUtils";
-import { useToggleProductAccordion } from "../../refactoring/hooks";
+import {
+  useToggleProductAccordion,
+  useToggleShowNewProductForm,
+} from "../../refactoring/hooks";
 
 const mockProducts: Product[] = [
   {
@@ -341,39 +344,59 @@ describe("advanced > ", () => {
   });
 
   describe("hooks 테스트", () => {
-    describe("useToggleProductAccordion 테스트", () => {
-      test("toggleProductAccordion productId 추가 및 제거", () => {
-        const { result } = renderHook(() => useToggleProductAccordion());
-        const testProductId = "p1";
+    describe("useToggle 테스트", () => {
+      describe("useToggleProductAccordion 테스트", () => {
+        test("toggleProductAccordion productId 추가 및 제거", () => {
+          const { result } = renderHook(() => useToggleProductAccordion());
+          const testProductId = "p1";
 
-        act(() => {
-          result.current.toggleProductAccordion(testProductId);
+          act(() => {
+            result.current.toggleProductAccordion(testProductId);
+          });
+
+          act(() => {
+            result.current.toggleProductAccordion(testProductId);
+          });
+
+          expect(result.current.openProductIds.has(testProductId)).toBe(false);
+          expect(result.current.openProductIds.size).toBe(0);
         });
 
-        act(() => {
-          result.current.toggleProductAccordion(testProductId);
-        });
+        test("toggleProductAccordion 여러 productId 추가 및 제거", () => {
+          const { result } = renderHook(() => useToggleProductAccordion());
+          const testProductId1 = "p1";
+          const testProductId2 = "p2";
 
-        expect(result.current.openProductIds.has(testProductId)).toBe(false);
-        expect(result.current.openProductIds.size).toBe(0);
+          act(() => {
+            result.current.toggleProductAccordion(testProductId1);
+          });
+
+          act(() => {
+            result.current.toggleProductAccordion(testProductId2);
+          });
+
+          expect(result.current.openProductIds.has(testProductId1)).toBe(true);
+          expect(result.current.openProductIds.has(testProductId2)).toBe(true);
+          expect(result.current.openProductIds.size).toBe(2);
+        });
       });
 
-      test("toggleProductAccordion 여러 productId 추가 및 제거", () => {
-        const { result } = renderHook(() => useToggleProductAccordion());
-        const testProductId1 = "p1";
-        const testProductId2 = "p2";
+      describe("useToggleShowNewProductForm 테스트", () => {
+        test("toggleShowNewProductForm 디폴트는 아코디언 비활성화", () => {
+          const { result } = renderHook(() => useToggleShowNewProductForm());
 
-        act(() => {
-          result.current.toggleProductAccordion(testProductId1);
+          expect(result.current.showNewProductForm).toBe(false);
         });
 
-        act(() => {
-          result.current.toggleProductAccordion(testProductId2);
-        });
+        test("toggleShowNewProductForm 클릭 시 활성화", () => {
+          const { result } = renderHook(() => useToggleShowNewProductForm());
 
-        expect(result.current.openProductIds.has(testProductId1)).toBe(true);
-        expect(result.current.openProductIds.has(testProductId2)).toBe(true);
-        expect(result.current.openProductIds.size).toBe(2);
+          act(() => {
+            result.current.setShowNewProductForm(true);
+          });
+
+          expect(result.current.showNewProductForm).toBe(true);
+        });
       });
     });
   });

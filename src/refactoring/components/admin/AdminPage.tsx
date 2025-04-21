@@ -1,10 +1,14 @@
-import { useState } from "react";
 import { Coupon, Product } from "../../../types";
 import {
   useDiscount,
   useRegisterCoupon,
   useToggleProductAccordion,
+  useToggleShowNewProductForm,
 } from "../../hooks";
+import {
+  useProductAddForm,
+  useProductEditForm,
+} from "../../hooks/useProductForm";
 
 interface Props {
   products: Product[];
@@ -32,65 +36,20 @@ export const AdminPage = ({
   const { openProductIds, toggleProductAccordion } =
     useToggleProductAccordion();
 
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const { showNewProductForm, setShowNewProductForm } =
+    useToggleShowNewProductForm();
 
-  const [showNewProductForm, setShowNewProductForm] = useState(false);
-  const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
-    name: "",
-    price: 0,
-    stock: 0,
-    discounts: [],
-  });
+  const {
+    editingProduct,
+    setEditingProduct,
+    handleEditProduct,
+    handleProductNameUpdate,
+    handlePriceUpdate,
+    handleEditComplete,
+  } = useProductEditForm();
 
-  // handleEditProduct 함수 수정
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct({ ...product });
-  };
-
-  // 새로운 핸들러 함수 추가
-  const handleProductNameUpdate = (productId: string, newName: string) => {
-    if (editingProduct && editingProduct.id === productId) {
-      const updatedProduct = { ...editingProduct, name: newName };
-      setEditingProduct(updatedProduct);
-    }
-  };
-
-  // 새로운 핸들러 함수 추가
-  const handlePriceUpdate = (productId: string, newPrice: number) => {
-    if (editingProduct && editingProduct.id === productId) {
-      const updatedProduct = { ...editingProduct, price: newPrice };
-      setEditingProduct(updatedProduct);
-    }
-  };
-
-  // 수정 완료 핸들러 함수 추가
-  const handleEditComplete = () => {
-    if (editingProduct) {
-      onProductUpdate(editingProduct);
-      setEditingProduct(null);
-    }
-  };
-
-  const handleStockUpdate = (productId: string, newStock: number) => {
-    const updatedProduct = products.find((p) => p.id === productId);
-    if (updatedProduct) {
-      const newProduct = { ...updatedProduct, stock: newStock };
-      onProductUpdate(newProduct);
-      setEditingProduct(newProduct);
-    }
-  };
-
-  const handleAddNewProduct = () => {
-    const productWithId = { ...newProduct, id: Date.now().toString() };
-    onProductAdd(productWithId);
-    setNewProduct({
-      name: "",
-      price: 0,
-      stock: 0,
-      discounts: [],
-    });
-    setShowNewProductForm(false);
-  };
+  const { newProduct, setNewProduct, handleStockUpdate, handleAddNewProduct } =
+    useProductAddForm();
 
   return (
     <div className="container mx-auto p-4">
@@ -165,7 +124,9 @@ export const AdminPage = ({
                 />
               </div>
               <button
-                onClick={handleAddNewProduct}
+                onClick={() =>
+                  handleAddNewProduct(onProductAdd, setShowNewProductForm)
+                }
                 className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
               >
                 추가
@@ -226,7 +187,10 @@ export const AdminPage = ({
                             onChange={(e) =>
                               handleStockUpdate(
                                 product.id,
-                                parseInt(e.target.value)
+                                parseInt(e.target.value),
+                                products,
+                                onProductUpdate,
+                                setEditingProduct
                               )
                             }
                             className="w-full p-2 border rounded"
@@ -304,7 +268,7 @@ export const AdminPage = ({
                           </div>
                         </div>
                         <button
-                          onClick={handleEditComplete}
+                          onClick={() => handleEditComplete(onProductUpdate)}
                           className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mt-2"
                         >
                           수정 완료

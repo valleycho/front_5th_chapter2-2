@@ -23,3 +23,12 @@ export const useToggleProductAccordion = () => {
       toggleProductAccordion
     }
 }
+
+export const useToggleShowNewProductForm = () => {
+  const [showNewProductForm, setShowNewProductForm] = useState(false);
+
+  return {
+    showNewProductForm,
+    setShowNewProductForm,
+  }
+}
