@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Coupon, Discount, Product } from "../../../types.ts";
+import { Coupon, Discount, Product } from "../../../types";
+import { useRegisterCoupon } from "../../hooks";
 
 interface Props {
   products: Product[];
@@ -16,18 +17,15 @@ export const AdminPage = ({
   onProductAdd,
   onCouponAdd,
 }: Props) => {
+  const { newCoupon, setNewCoupon, handleAddCoupon } = useRegisterCoupon();
+
   const [openProductIds, setOpenProductIds] = useState<Set<string>>(new Set());
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newDiscount, setNewDiscount] = useState<Discount>({
     quantity: 0,
     rate: 0,
   });
-  const [newCoupon, setNewCoupon] = useState<Coupon>({
-    name: "",
-    code: "",
-    discountType: "percentage",
-    discountValue: 0,
-  });
+
   const [showNewProductForm, setShowNewProductForm] = useState(false);
   const [newProduct, setNewProduct] = useState<Omit<Product, "id">>({
     name: "",
@@ -109,16 +107,6 @@ export const AdminPage = ({
       onProductUpdate(newProduct);
       setEditingProduct(newProduct);
     }
-  };
-
-  const handleAddCoupon = () => {
-    onCouponAdd(newCoupon);
-    setNewCoupon({
-      name: "",
-      code: "",
-      discountType: "percentage",
-      discountValue: 0,
-    });
   };
 
   const handleAddNewProduct = () => {
@@ -412,7 +400,7 @@ export const AdminPage = ({
                 />
               </div>
               <button
-                onClick={handleAddCoupon}
+                onClick={() => handleAddCoupon(onCouponAdd)}
                 className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
               >
                 쿠폰 추가

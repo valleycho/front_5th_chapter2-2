@@ -14,3 +14,10 @@ export const initialCoupons: Coupon[] = [
       discountValue: 10,
   },
 ];
+
+export const initialRegisterCoupon: Coupon = {
+  name: "",
+  code: "",
+  discountType: "percentage",
+  discountValue: 0,
+};
