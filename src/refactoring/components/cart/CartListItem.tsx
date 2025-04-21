@@ -1,13 +1,17 @@
 import { getAppliedDiscount } from "../../hooks/utils/discountUtils";
 import type { CartItem } from "../../../types";
 
-interface CartItemProps {
+interface CartListItemProps {
   item: CartItem;
   updateQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
 }
 
-const CartItem = ({ item, updateQuantity, removeFromCart }: CartItemProps) => {
+const CartListItem = ({
+  item,
+  updateQuantity,
+  removeFromCart,
+}: CartListItemProps) => {
   const appliedDiscount = getAppliedDiscount(item);
 
   return (
@@ -51,4 +55,4 @@ const CartItem = ({ item, updateQuantity, removeFromCart }: CartItemProps) => {
   );
 };
 
-export default CartItem;
+export default CartListItem;
