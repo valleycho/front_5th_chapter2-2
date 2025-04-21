@@ -1,4 +1,5 @@
 import { CartItem } from "../../../types";
+import { calculateItemTotal } from "./cartUtils";
 
 export const getMaxDiscount = (discounts: { quantity: number; rate: number }[]) => {
   return discounts.reduce((max, discount) => Math.max(max, discount.rate), 0);
@@ -16,3 +17,25 @@ export const getAppliedDiscount = (item: CartItem) => {
     return max;
   }, 0);
 };
+
+export const getMaxApplicableDiscount = (item: CartItem) => {
+  return item.product.discounts.reduce((maxRate, discount) => {
+    if (item.quantity >= discount.quantity) {
+      return Math.max(maxRate, discount.rate);
+    }
+
+    return maxRate;
+  }, 0);
+};
+
+export const getTotalBeforeProductDiscount = (cart: CartItem[]) => {
+  return cart.reduce((acc, item) => {
+    return acc + item.product.price * item.quantity;
+  }, 0);
+}
+
+export const getTotalAfterProductDiscount = (cart: CartItem[]) => {
+  return cart.reduce((acc, item) => {
+    return acc + calculateItemTotal(item);
+  }, 0);
+}
