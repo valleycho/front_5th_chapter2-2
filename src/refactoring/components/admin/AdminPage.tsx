@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Coupon, Product } from "../../../types";
-import { useDiscount, useRegisterCoupon } from "../../hooks";
+import {
+  useDiscount,
+  useRegisterCoupon,
+  useToggleProductAccordion,
+} from "../../hooks";
 
 interface Props {
   products: Product[];
@@ -25,7 +29,9 @@ export const AdminPage = ({
     handleRemoveDiscount,
   } = useDiscount();
 
-  const [openProductIds, setOpenProductIds] = useState<Set<string>>(new Set());
+  const { openProductIds, toggleProductAccordion } =
+    useToggleProductAccordion();
+
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const [showNewProductForm, setShowNewProductForm] = useState(false);
@@ -35,18 +41,6 @@ export const AdminPage = ({
     stock: 0,
     discounts: [],
   });
-
-  const toggleProductAccordion = (productId: string) => {
-    setOpenProductIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(productId)) {
-        newSet.delete(productId);
-      } else {
-        newSet.add(productId);
-      }
-      return newSet;
-    });
-  };
 
   // handleEditProduct 함수 수정
   const handleEditProduct = (product: Product) => {

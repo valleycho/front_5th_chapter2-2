@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { describe, expect, test } from "vitest";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  within,
+} from "@testing-library/react";
 import { CartPage } from "../../refactoring/components/cart/CartPage";
 import { AdminPage } from "../../refactoring/components/admin/AdminPage";
 import { CartItem, Coupon, Product } from "../../types";
@@ -9,6 +16,7 @@ import {
   getAppliedDiscount,
   getMaxDiscount,
 } from "../../refactoring/hooks/utils/discountUtils";
+import { useToggleProductAccordion } from "../../refactoring/hooks";
 
 const mockProducts: Product[] = [
   {
@@ -266,64 +274,106 @@ describe("advanced > ", () => {
     });
   });
 
-  describe("productUtils 테스트", () => {
-    test("getRemainingStock 장바구니가 비어있는 경우의 재고", () => {
-      const dummyCart: CartItem[] = [];
-      const dummyProduct = mockProducts[0];
+  describe("utils 테스트", () => {
+    describe("productUtils 테스트", () => {
+      test("getRemainingStock 장바구니가 비어있는 경우의 재고", () => {
+        const dummyCart: CartItem[] = [];
+        const dummyProduct = mockProducts[0];
 
-      const remainingStock = getRemainingStock(dummyProduct, dummyCart);
+        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
 
-      expect(remainingStock).toBe(dummyProduct.stock);
-    });
+        expect(remainingStock).toBe(dummyProduct.stock);
+      });
 
-    test("getRemainingStock 장바구니에 해당 상품이 있는 경우의 재고", () => {
-      const dummyCart: CartItem[] = [{ product: mockProducts[0], quantity: 1 }];
-      const dummyProduct = mockProducts[0];
-
-      const remainingStock = getRemainingStock(dummyProduct, dummyCart);
-
-      expect(remainingStock).toBe(dummyProduct.stock - 1);
-    });
-
-    test("getRemainingStock 장바구니에 해당 상품이 없는 경우의 재고", () => {
-      const dummyCart: CartItem[] = [];
-      const dummyProduct = mockProducts[0];
-
-      const remainingStock = getRemainingStock(dummyProduct, dummyCart);
-
-      expect(remainingStock).toBe(dummyProduct.stock);
-    });
-  });
-
-  describe("discountUtils 테스트", () => {
-    test("getMaxDiscount 할인율 최대값 확인", () => {
-      const dummyProduct = mockProducts[0];
-
-      const maxDiscount = getMaxDiscount(dummyProduct.discounts);
-
-      expect(maxDiscount).toBe(dummyProduct.discounts[0].rate);
-    });
-
-    describe("getAppliedDiscount 테스트", () => {
-      test("상품 수량이 최소 요구 할인 수량보다 크면 할인율 적용", () => {
+      test("getRemainingStock 장바구니에 해당 상품이 있는 경우의 재고", () => {
         const dummyCart: CartItem[] = [
-          { product: mockProducts[0], quantity: 10 },
+          { product: mockProducts[0], quantity: 1 },
         ];
         const dummyProduct = mockProducts[0];
 
-        const appliedDiscount = getAppliedDiscount(dummyCart[0]);
+        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
 
-        expect(appliedDiscount).toBe(dummyProduct.discounts[0].rate);
+        expect(remainingStock).toBe(dummyProduct.stock - 1);
       });
 
-      test("상품 수량이 최소 요구 할인 수량보다 작으면 할인율 적용 안됨", () => {
-        const dummyCart: CartItem[] = [
-          { product: mockProducts[0], quantity: 9 },
-        ];
+      test("getRemainingStock 장바구니에 해당 상품이 없는 경우의 재고", () => {
+        const dummyCart: CartItem[] = [];
+        const dummyProduct = mockProducts[0];
 
-        const appliedDiscount = getAppliedDiscount(dummyCart[0]);
+        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
 
-        expect(appliedDiscount).toBe(0);
+        expect(remainingStock).toBe(dummyProduct.stock);
+      });
+    });
+
+    describe("discountUtils 테스트", () => {
+      test("getMaxDiscount 할인율 최대값 확인", () => {
+        const dummyProduct = mockProducts[0];
+
+        const maxDiscount = getMaxDiscount(dummyProduct.discounts);
+
+        expect(maxDiscount).toBe(dummyProduct.discounts[0].rate);
+      });
+
+      describe("getAppliedDiscount 테스트", () => {
+        test("상품 수량이 최소 요구 할인 수량보다 크면 할인율 적용", () => {
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 10 },
+          ];
+          const dummyProduct = mockProducts[0];
+
+          const appliedDiscount = getAppliedDiscount(dummyCart[0]);
+
+          expect(appliedDiscount).toBe(dummyProduct.discounts[0].rate);
+        });
+
+        test("상품 수량이 최소 요구 할인 수량보다 작으면 할인율 적용 안됨", () => {
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 9 },
+          ];
+
+          const appliedDiscount = getAppliedDiscount(dummyCart[0]);
+
+          expect(appliedDiscount).toBe(0);
+        });
+      });
+    });
+  });
+
+  describe("hooks 테스트", () => {
+    describe("useToggleProductAccordion 테스트", () => {
+      test("toggleProductAccordion productId 추가 및 제거", () => {
+        const { result } = renderHook(() => useToggleProductAccordion());
+        const testProductId = "p1";
+
+        act(() => {
+          result.current.toggleProductAccordion(testProductId);
+        });
+
+        act(() => {
+          result.current.toggleProductAccordion(testProductId);
+        });
+
+        expect(result.current.openProductIds.has(testProductId)).toBe(false);
+        expect(result.current.openProductIds.size).toBe(0);
+      });
+
+      test("toggleProductAccordion 여러 productId 추가 및 제거", () => {
+        const { result } = renderHook(() => useToggleProductAccordion());
+        const testProductId1 = "p1";
+        const testProductId2 = "p2";
+
+        act(() => {
+          result.current.toggleProductAccordion(testProductId1);
+        });
+
+        act(() => {
+          result.current.toggleProductAccordion(testProductId2);
+        });
+
+        expect(result.current.openProductIds.has(testProductId1)).toBe(true);
+        expect(result.current.openProductIds.has(testProductId2)).toBe(true);
+        expect(result.current.openProductIds.size).toBe(2);
       });
     });
   });
