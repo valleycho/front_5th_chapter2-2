@@ -24,11 +24,11 @@ export const useToggleProductAccordion = () => {
     }
 }
 
-export const useToggleShowNewProductForm = () => {
-  const [showNewProductForm, setShowNewProductForm] = useState(false);
+export const useToggleShow = () => {
+  const [show, setShow] = useState(false);
 
   return {
-    showNewProductForm,
-    setShowNewProductForm,
+    show,
+    setShow,
   }
 }

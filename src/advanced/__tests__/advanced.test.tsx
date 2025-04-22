@@ -19,7 +19,7 @@ import {
 import {
   useLocalStorage,
   useToggleProductAccordion,
-  useToggleShowNewProductForm,
+  useToggleShow,
 } from "../../refactoring/hooks";
 
 const mockProducts: Product[] = [
@@ -410,21 +410,21 @@ describe("advanced > ", () => {
         });
       });
 
-      describe("useToggleShowNewProductForm 테스트", () => {
-        test("toggleShowNewProductForm 디폴트는 아코디언 비활성화", () => {
-          const { result } = renderHook(() => useToggleShowNewProductForm());
+      describe("useToggleShow 테스트", () => {
+        test("useToggleShow 기본 비활성화", () => {
+          const { result } = renderHook(() => useToggleShow());
 
-          expect(result.current.showNewProductForm).toBe(false);
+          expect(result.current.show).toBe(false);
         });
 
-        test("toggleShowNewProductForm 클릭 시 활성화", () => {
-          const { result } = renderHook(() => useToggleShowNewProductForm());
+        test("useToggleShow 기본 활성화", () => {
+          const { result } = renderHook(() => useToggleShow());
 
           act(() => {
-            result.current.setShowNewProductForm(true);
+            result.current.setShow(true);
           });
 
-          expect(result.current.showNewProductForm).toBe(true);
+          expect(result.current.show).toBe(true);
         });
       });
     });
