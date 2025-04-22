@@ -37,19 +37,6 @@ export const useProductEditForm = () => {
     }
   };
 
-  return {
-    editingProduct,
-    setEditingProduct,
-    handleEditProduct,
-    handleProductNameUpdate,
-    handlePriceUpdate,
-    handleEditComplete,
-  };
-};
-
-export const useProductAddForm = () => {
-  const [newProduct, setNewProduct] = useState<Omit<Product, "id">>(initialProductForm);
-
   const handleStockUpdate = (
     productId: string, 
     newStock: number, 
@@ -67,6 +54,20 @@ export const useProductAddForm = () => {
     }
   };
 
+  return {
+    editingProduct,
+    setEditingProduct,
+    handleEditProduct,
+    handleProductNameUpdate,
+    handlePriceUpdate,
+    handleEditComplete,
+    handleStockUpdate,
+  };
+};
+
+export const useProductAddForm = () => {
+  const [newProduct, setNewProduct] = useState<Omit<Product, "id">>(initialProductForm);
+
   const handleAddNewProduct = (
     onProductAdd: (newProduct: Product) => void,
     setShowNewProductForm: (show: boolean) => void
@@ -82,7 +83,6 @@ export const useProductAddForm = () => {
   return {
     newProduct,
     setNewProduct,
-    handleStockUpdate,
     handleAddNewProduct,
   };
 };
