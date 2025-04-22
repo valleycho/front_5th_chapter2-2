@@ -17,6 +17,7 @@ import {
   getMaxDiscount,
 } from "../../refactoring/hooks/utils/discountUtils";
 import {
+  useLocalStorage,
   useToggleProductAccordion,
   useToggleShowNewProductForm,
 } from "../../refactoring/hooks";
@@ -344,6 +345,34 @@ describe("advanced > ", () => {
   });
 
   describe("hooks 테스트", () => {
+    describe("useLocalStorage 테스트", () => {
+      test("getLocalStorage 저장되고 잘 가져오는지 확인", () => {
+        const { result } = renderHook(() => useLocalStorage());
+
+        act(() => {
+          result.current.setLocalStorage("products", mockProducts);
+        });
+
+        expect(result.current.getLocalStorage("products")).toEqual(
+          mockProducts
+        );
+      });
+
+      test("removeLocalStorage 저장되고 잘 제거되는지 확인", () => {
+        const { result } = renderHook(() => useLocalStorage());
+
+        act(() => {
+          result.current.setLocalStorage("products", mockProducts);
+        });
+
+        act(() => {
+          result.current.removeLocalStorage("products");
+        });
+
+        expect(result.current.getLocalStorage("products")).toBeNull();
+      });
+    });
+
     describe("useToggle 테스트", () => {
       describe("useToggleProductAccordion 테스트", () => {
         test("toggleProductAccordion productId 추가 및 제거", () => {

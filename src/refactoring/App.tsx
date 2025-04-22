@@ -1,13 +1,19 @@
 import { CartPage } from "./components/cart/CartPage.tsx";
 import { AdminPage } from "./components/admin/AdminPage.tsx";
-import { useCoupons, useProducts } from "./hooks";
+import { useCoupons, useLocalStorage, useProducts } from "./hooks";
 import { initialCoupons } from "./constants/coupon.constants.ts";
 import { initialProducts } from "./constants/product.constants.ts";
 import { useAdmin } from "./hooks/useAdmin.ts";
 
 const App = () => {
-  const { products, updateProduct, addProduct } = useProducts(initialProducts);
-  const { coupons, addCoupon } = useCoupons(initialCoupons);
+  const { setLocalStorage, getLocalStorage } = useLocalStorage();
+  setLocalStorage("products", initialProducts);
+  setLocalStorage("coupons", initialCoupons);
+
+  const { products, updateProduct, addProduct } = useProducts(
+    getLocalStorage("products")
+  );
+  const { coupons, addCoupon } = useCoupons(getLocalStorage("coupons"));
   const { isAdmin, handleToggleAdmin } = useAdmin();
 
   return (
