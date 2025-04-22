@@ -12,6 +12,16 @@ export const useCoupons = (initialCoupons: Coupon[]) => {
   return { coupons, addCoupon };
 };
 
+export const useSelectedCoupon = () => {
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+
+  const applyCoupon = (coupon: Coupon) => {
+    setSelectedCoupon(coupon);
+  };
+
+  return { selectedCoupon, applyCoupon };
+};
+
 export const useRegisterCoupon = () => {
   const [newCoupon, setNewCoupon] = useState<Coupon>(initialRegisterCoupon);
 
