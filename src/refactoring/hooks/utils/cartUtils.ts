@@ -1,12 +1,16 @@
 import { CartItem, Coupon } from "../../../types";
 import { getCouponDiscount } from "./couponUtils";
-import { getMaxApplicableDiscount, getTotalAfterProductDiscount, getTotalBeforeProductDiscount } from "./discountUtils";
+import { getMaxProductDiscount, getTotalAfterProductDiscount, getTotalBeforeProductDiscount } from "./discountUtils";
 
 export const calculateItemTotal = (item: CartItem) => {
   const basePrice = item.product.price * item.quantity;
   const discountRate = 1 - getMaxApplicableDiscount(item);
 
   return basePrice * discountRate;
+};
+
+export const getMaxApplicableDiscount = (item: CartItem) => {
+  return getMaxProductDiscount(item)
 };
   
 export const calculateCartTotal = (
