@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react-swc';
 export default mergeConfig(
   defineConfig({
     plugins: [react()],
+    server: {
+      cors: true,
+    }
   }),
   defineTestConfig({
     test: {
