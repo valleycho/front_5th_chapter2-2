@@ -17,6 +17,8 @@ import {
   getMaxDiscount,
 } from "../../refactoring/hooks/utils/discountUtils";
 import {
+  useLocalStorage,
+  useProducts,
   useToggleProductAccordion,
   useToggleShow,
 } from "../../refactoring/hooks";
@@ -353,33 +355,56 @@ describe("advanced > ", () => {
   });
 
   describe("hooks 테스트", () => {
-    // describe("useLocalStorage 테스트", () => {
-    //   test("getLocalStorage 저장되고 잘 가져오는지 확인", () => {
-    //     const { result } = renderHook(() => useLocalStorage());
+    describe("useLocalStorage 테스트", () => {
+      test("getLocalStorage 저장되고 잘 가져오는지 확인", () => {
+        const { result } = renderHook(() => useLocalStorage());
 
-    //     act(() => {
-    //       result.current.setLocalStorage("products", mockProducts);
-    //     });
+        act(() => {
+          result.current.setLocalStorage("products", mockProducts);
+        });
 
-    //     expect(result.current.getLocalStorage("products")).toEqual(
-    //       mockProducts
-    //     );
-    //   });
+        expect(result.current.getLocalStorage("products")).toEqual(
+          mockProducts
+        );
+      });
 
-    //   test("removeLocalStorage 저장되고 잘 제거되는지 확인", () => {
-    //     const { result } = renderHook(() => useLocalStorage());
+      test("removeLocalStorage 저장되고 잘 제거되는지 확인", () => {
+        const { result } = renderHook(() => useLocalStorage());
 
-    //     act(() => {
-    //       result.current.setLocalStorage("products", mockProducts);
-    //     });
+        act(() => {
+          result.current.setLocalStorage("products", mockProducts);
+        });
 
-    //     act(() => {
-    //       result.current.removeLocalStorage("products");
-    //     });
+        act(() => {
+          result.current.removeLocalStorage("products");
+        });
 
-    //     expect(result.current.getLocalStorage("products")).toBeNull();
-    //   });
-    // });
+        expect(result.current.getLocalStorage("products")).toBeNull();
+      });
+
+      test("getLocalStorage 불러온 데이터로 초기 데이터 셋팅이 잘되는지 확인", () => {
+        const { result } = renderHook(() => useLocalStorage());
+
+        act(() => {
+          result.current.setLocalStorage("products", mockProducts);
+        });
+
+        const { result: productsResult } = renderHook(
+          () => useProducts(mockProducts),
+          {
+            wrapper: ({ children }) => (
+              <ProductProvider initialProducts={mockProducts}>
+                {children}
+              </ProductProvider>
+            ),
+          }
+        );
+
+        expect(productsResult.current.products.length).toBe(
+          mockProducts.length
+        );
+      });
+    });
 
     describe("useToggle 테스트", () => {
       describe("useToggleProductAccordion 테스트", () => {

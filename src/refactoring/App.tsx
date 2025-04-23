@@ -3,16 +3,21 @@ import { CartPage } from "./components/cart/CartPage.tsx";
 import { initialCoupons } from "./constants/coupon.constants.ts";
 import { initialProducts } from "./constants/product.constants.ts";
 import { useAdmin } from "./hooks/useAdmin.ts";
+import { useLocalStorage } from "./hooks/useLocalStorage.ts";
 import { CartProvider } from "./provider/CartProvider.tsx";
 import { CouponProvider } from "./provider/CouponProvider.tsx";
 import { ProductProvider } from "./provider/ProductProvider.tsx";
 
 const App = () => {
+  const { getLocalStorage, setLocalStorage } = useLocalStorage();
+  setLocalStorage("products", initialProducts);
+  setLocalStorage("coupons", initialCoupons);
+
   const { isAdmin, handleToggleAdmin } = useAdmin();
 
   return (
-    <ProductProvider initialProducts={initialProducts}>
-      <CouponProvider initialCoupons={initialCoupons}>
+    <ProductProvider initialProducts={getLocalStorage("products")}>
+      <CouponProvider initialCoupons={getLocalStorage("coupons")}>
         <div className="min-h-screen bg-gray-100">
           <nav className="bg-blue-600 text-white p-4">
             <div className="container mx-auto flex justify-between items-center">
