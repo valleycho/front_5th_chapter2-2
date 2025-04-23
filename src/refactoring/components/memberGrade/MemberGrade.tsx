@@ -1,19 +1,31 @@
-import { useToggleShow } from "../../hooks";
+import { useGrade, useToggleShow } from "../../hooks";
+import MemberGradeForm from "./MemberGradeForm";
+import MemberGradeItem from "./MemberGradeItem";
 
 const MemberGrade = () => {
   const { show, setShow } = useToggleShow();
+
+  const { grades, addGrade } = useGrade();
 
   return (
     <>
       <h2 className="text-2xl font-semibold mb-4">회원 등급 관리</h2>
       <button
         onClick={() => setShow(!show)}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-green-600"
+        className={[
+          show
+            ? `bg-red-500 hover:bg-red-600`
+            : `bg-blue-500 hover:bg-blue-600`,
+          "text-white px-4 py-2 rounded mb-4",
+        ].join(" ")}
       >
-        회원등급 추가
+        {show ? "취소" : "회원 등급 추가"}
       </button>
 
-      {show && <div>회원등급 추가 폼</div>}
+      {show && <MemberGradeForm setShow={setShow} addGrade={addGrade} />}
+      {grades.map((grade) => (
+        <MemberGradeItem key={grade.id} grade={grade} />
+      ))}
     </>
   );
 };

@@ -22,3 +22,9 @@ export interface Coupon {
   discountType: 'amount' | 'percentage';
   discountValue: number;
 }
+
+export interface Grade {
+  id: string;
+  name: string;
+  discountRate: number;
+}
