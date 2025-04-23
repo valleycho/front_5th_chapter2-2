@@ -1,6 +1,7 @@
 import { useCartContext } from "../../provider/CartProvider";
 
 const CartOrderSummary = () => {
+  const { selectedGrade } = useCartContext();
   const { calculateTotal } = useCartContext();
 
   return (
@@ -8,14 +9,20 @@ const CartOrderSummary = () => {
       <h2 className="text-2xl font-semibold mb-2">주문 요약</h2>
       <div className="space-y-1">
         <p>
-          상품 금액: {calculateTotal().totalBeforeDiscount.toLocaleString()}원
+          상품 금액:{" "}
+          {calculateTotal(selectedGrade).totalBeforeDiscount.toLocaleString()}원
         </p>
         <p className="text-green-600">
-          할인 금액: {calculateTotal().totalDiscount.toLocaleString()}원
+          회원등급 할인 금액:{" "}
+          {calculateTotal(selectedGrade).totalGradeDiscount.toLocaleString()}원
+        </p>
+        <p className="text-green-600">
+          할인 금액:{" "}
+          {calculateTotal(selectedGrade).totalDiscount.toLocaleString()}원
         </p>
         <p className="text-xl font-bold">
-          최종 결제 금액: {calculateTotal().totalAfterDiscount.toLocaleString()}
-          원
+          최종 결제 금액:{" "}
+          {calculateTotal(selectedGrade).totalAfterDiscount.toLocaleString()}원
         </p>
       </div>
     </div>

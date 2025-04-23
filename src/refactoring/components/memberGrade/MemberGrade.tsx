@@ -1,11 +1,11 @@
-import { useGrade, useToggleShow } from "../../hooks";
+import { useToggleShow } from "../../hooks";
+import { useMemberContext } from "../../provider/MemberProvider";
 import MemberGradeForm from "./MemberGradeForm";
 import MemberGradeItem from "./MemberGradeItem";
 
 const MemberGrade = () => {
   const { show, setShow } = useToggleShow();
-
-  const { grades, addGrade } = useGrade();
+  const { grades } = useMemberContext();
 
   return (
     <>
@@ -22,7 +22,7 @@ const MemberGrade = () => {
         {show ? "취소" : "회원 등급 추가"}
       </button>
 
-      {show && <MemberGradeForm setShow={setShow} addGrade={addGrade} />}
+      {show && <MemberGradeForm setShow={setShow} />}
       {grades.map((grade) => (
         <MemberGradeItem key={grade.id} grade={grade} />
       ))}

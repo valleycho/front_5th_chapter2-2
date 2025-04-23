@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { CartItem, Product } from "../../types";
+import { CartItem, Grade, Product } from "../../types";
 import { calculateCartTotal, updateCartItemQuantity } from "./utils/cartUtils";
 import { useSelectedCoupon } from "./useCoupon";
 
 export const useCart = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const { selectedCoupon, applyCoupon } = useSelectedCoupon();
-
-  const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } = calculateCartTotal(cart, selectedCoupon);
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -41,11 +39,21 @@ export const useCart = () => {
     });
   };
 
-  const calculateTotal = () => ({
-    totalBeforeDiscount,
-    totalAfterDiscount,
-    totalDiscount,
-  });
+  const calculateTotal = (selectedGrade: Grade | null) => {
+    const { 
+      totalBeforeDiscount, 
+      totalAfterDiscount, 
+      totalDiscount,
+      totalGradeDiscount,
+    } = calculateCartTotal(cart, selectedCoupon, selectedGrade);
+
+    return {
+      totalBeforeDiscount,
+      totalAfterDiscount,
+      totalDiscount,
+      totalGradeDiscount,
+    }
+  };
 
   return {
     cart,

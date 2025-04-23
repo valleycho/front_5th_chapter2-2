@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { describe, expect, test } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, test } from "vitest";
 import {
   act,
   fireEvent,
@@ -16,6 +16,9 @@ import * as cartUtils from "../../refactoring/hooks/utils/cartUtils";
 import { ProductProvider } from "../../refactoring/provider/ProductProvider";
 import { CouponProvider } from "../../refactoring/provider/CouponProvider";
 import { CartProvider } from "../../refactoring/provider/CartProvider";
+import { MemberProvider } from "../../refactoring/provider/MemberProvider";
+import { mockMember } from "../../refactoring/mocks/handlers";
+import { server } from "../../refactoring/mocks/server";
 
 const mockProducts: Product[] = [
   {
@@ -76,11 +79,18 @@ const TestAdminPage = () => {
   return (
     <ProductProvider initialProducts={products}>
       <CouponProvider initialCoupons={coupons}>
-        <AdminPage />
+        <MemberProvider initialMember={mockMember}>
+          <AdminPage />
+        </MemberProvider>
       </CouponProvider>
     </ProductProvider>
   );
 };
+
+// MSW 서버 설정
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe("basic > ", () => {
   describe("시나리오 테스트 > ", () => {
@@ -88,9 +98,11 @@ describe("basic > ", () => {
       render(
         <ProductProvider initialProducts={mockProducts}>
           <CouponProvider initialCoupons={mockCoupons}>
-            <CartProvider>
-              <CartPage />
-            </CartProvider>
+            <MemberProvider initialMember={mockMember}>
+              <CartProvider>
+                <CartPage />
+              </CartProvider>
+            </MemberProvider>
           </CouponProvider>
         </ProductProvider>
       );
@@ -157,7 +169,9 @@ describe("basic > ", () => {
       expect(screen.getByText("최종 결제 금액: 590,000원")).toBeInTheDocument();
 
       // 10. 쿠폰 적용하기
-      const couponSelect = screen.getByRole("combobox");
+      const couponSelect = screen.getByRole("combobox", {
+        name: "쿠폰 선택",
+      });
       fireEvent.change(couponSelect, { target: { value: "1" } }); // 10% 할인 쿠폰 선택
 
       // 11. 할인율 계산

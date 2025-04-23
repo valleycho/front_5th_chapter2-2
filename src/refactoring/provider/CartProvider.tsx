@@ -1,24 +1,29 @@
 import { createContext, useContext } from "react";
-import { CartItem, Coupon, Product } from "../../types";
-import { useCart } from "../hooks";
+import { CartItem, Coupon, Grade, Product } from "../../types";
+import { useCart, useSelectedGrade } from "../hooks";
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
-  calculateTotal: () => {
+  calculateTotal: (selectedGrade: Grade | null) => {
     totalBeforeDiscount: number;
     totalAfterDiscount: number;
     totalDiscount: number;
+    totalGradeDiscount: number;
   };
   selectedCoupon: Coupon | null;
   applyCoupon: (coupon: Coupon) => void;
+  selectedGrade: Grade | null;
+  applyGrade: (grade: Grade) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const { selectedGrade, applyGrade } = useSelectedGrade();
+
   const {
     cart,
     addToCart,
@@ -39,6 +44,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         calculateTotal,
         selectedCoupon,
         applyCoupon,
+        selectedGrade,
+        applyGrade,
       }}
     >
       {children}

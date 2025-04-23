@@ -1,4 +1,4 @@
-import { CartItem } from "../../../types";
+import { CartItem, Grade } from "../../../types";
 import { calculateItemTotal } from "./cartUtils";
 
 export const getMaxDiscount = (discounts: { quantity: number; rate: number }[]) => {
@@ -38,4 +38,10 @@ export const getTotalAfterProductDiscount = (cart: CartItem[]) => {
   return cart.reduce((acc, item) => {
     return acc + calculateItemTotal(item);
   }, 0);
+}
+
+export const getMemberGradeDiscount = (totalAfterProductDiscount: number, selectedGrade: Grade | null) => {
+  if (!selectedGrade) return 0;
+
+  return totalAfterProductDiscount * (selectedGrade.discountRate / 100);
 }

@@ -1,6 +1,6 @@
-import { CartItem, Coupon } from "../../../types";
+import { CartItem, Coupon, Grade } from "../../../types";
 import { getCouponDiscount } from "./couponUtils";
-import { getMaxProductDiscount, getTotalAfterProductDiscount, getTotalBeforeProductDiscount } from "./discountUtils";
+import { getMaxProductDiscount, getMemberGradeDiscount, getTotalAfterProductDiscount, getTotalBeforeProductDiscount } from "./discountUtils";
 
 export const calculateItemTotal = (item: CartItem) => {
   const basePrice = item.product.price * item.quantity;
@@ -15,20 +15,24 @@ export const getMaxApplicableDiscount = (item: CartItem) => {
   
 export const calculateCartTotal = (
   cart: CartItem[],
-  selectedCoupon: Coupon | null
+  selectedCoupon: Coupon | null,
+  selectedGrade: Grade | null
 ) => {
   const totalBeforeDiscount = getTotalBeforeProductDiscount(cart)
   const totalAfterProductDiscount = getTotalAfterProductDiscount(cart);
 
   const couponDiscount = getCouponDiscount(totalAfterProductDiscount, selectedCoupon);
-
-  const totalAfterDiscount = totalAfterProductDiscount - couponDiscount;
+  const memberGradeDiscount = getMemberGradeDiscount(totalAfterProductDiscount, selectedGrade);
+  
+  const totalAfterDiscount = totalAfterProductDiscount - couponDiscount - memberGradeDiscount;
+  const totalGradeDiscount = memberGradeDiscount;
   const totalDiscount = totalBeforeDiscount - totalAfterDiscount;
 
   return {
     totalBeforeDiscount,
     totalAfterDiscount,
     totalDiscount,
+    totalGradeDiscount,
   };
 };
 

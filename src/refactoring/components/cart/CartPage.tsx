@@ -1,4 +1,5 @@
 import CouponApply from "../\bcoupon/CouponApply.tsx";
+import MemberGradeApply from "../memberGrade/MemberGradeApply.tsx";
 import ProductList from "../product/ProductList.tsx";
 import CartList from "./CartList.tsx";
 import CartOrderSummary from "./CartOrderSummary.tsx";
@@ -14,6 +15,7 @@ export const CartPage = () => {
 
           <CartList />
 
+          <MemberGradeApply />
           <CouponApply />
 
           <CartOrderSummary />

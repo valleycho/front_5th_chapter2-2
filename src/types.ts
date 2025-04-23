@@ -28,3 +28,9 @@ export interface Grade {
   name: string;
   discountRate: number;
 }
+
+export interface Member {
+  id: string;
+  name: string;
+  gradeId: string | null;
+}

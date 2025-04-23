@@ -1,13 +1,13 @@
-import { Grade } from "../../../types";
 import { useNewGrade } from "../../hooks";
+import { useMemberContext } from "../../provider/MemberProvider";
 
 interface MemberGradeFormProps {
   setShow: (show: boolean) => void;
-  addGrade: (grade: Grade) => void;
 }
 
-const MemberGradeForm = ({ setShow, addGrade }: MemberGradeFormProps) => {
+const MemberGradeForm = ({ setShow }: MemberGradeFormProps) => {
   const { newGrade, setNewGrade, clearNewGrade } = useNewGrade();
+  const { addGrade } = useMemberContext();
 
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
