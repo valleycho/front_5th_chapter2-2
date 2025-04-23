@@ -15,6 +15,7 @@ import { useCart, useCoupons, useProducts } from "../../refactoring/hooks";
 import * as cartUtils from "../../refactoring/hooks/utils/cartUtils";
 import { ProductProvider } from "../../refactoring/provider/ProductProvider";
 import { CouponProvider } from "../../refactoring/provider/CouponProvider";
+import { CartProvider } from "../../refactoring/provider/CartProvider";
 
 const mockProducts: Product[] = [
   {
@@ -87,7 +88,9 @@ describe("basic > ", () => {
       render(
         <ProductProvider initialProducts={mockProducts}>
           <CouponProvider initialCoupons={mockCoupons}>
-            <CartPage />
+            <CartProvider>
+              <CartPage />
+            </CartProvider>
           </CouponProvider>
         </ProductProvider>
       );

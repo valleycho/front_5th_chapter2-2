@@ -23,6 +23,7 @@ import {
 } from "../../refactoring/hooks";
 import { ProductProvider } from "../../refactoring/provider/ProductProvider";
 import { CouponProvider } from "../../refactoring/provider/CouponProvider";
+import { CartProvider } from "../../refactoring/provider/CartProvider";
 
 const mockProducts: Product[] = [
   {
@@ -95,7 +96,9 @@ describe("advanced > ", () => {
       render(
         <ProductProvider initialProducts={mockProducts}>
           <CouponProvider initialCoupons={mockCoupons}>
-            <CartPage />
+            <CartProvider>
+              <CartPage />
+            </CartProvider>
           </CouponProvider>
         </ProductProvider>
       );

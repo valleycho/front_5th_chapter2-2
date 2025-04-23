@@ -1,13 +1,9 @@
-import { Coupon } from "../../../types";
+import { useCartContext } from "../../provider/CartProvider";
 import { useCouponContext } from "../../provider/CouponProvider";
 
-interface CouponApplyProps {
-  applyCoupon: (coupon: Coupon) => void;
-  selectedCoupon: Coupon | null;
-}
-
-const CouponApply = ({ applyCoupon, selectedCoupon }: CouponApplyProps) => {
+const CouponApply = () => {
   const { coupons } = useCouponContext();
+  const { applyCoupon, selectedCoupon } = useCartContext();
 
   return (
     <div className="mt-6 bg-white p-4 rounded shadow">

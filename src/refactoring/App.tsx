@@ -3,6 +3,7 @@ import { CartPage } from "./components/cart/CartPage.tsx";
 import { initialCoupons } from "./constants/coupon.constants.ts";
 import { initialProducts } from "./constants/product.constants.ts";
 import { useAdmin } from "./hooks/useAdmin.ts";
+import { CartProvider } from "./provider/CartProvider.tsx";
 import { CouponProvider } from "./provider/CouponProvider.tsx";
 import { ProductProvider } from "./provider/ProductProvider.tsx";
 
@@ -25,7 +26,13 @@ const App = () => {
             </div>
           </nav>
           <main className="container mx-auto mt-6">
-            {isAdmin ? <AdminPage /> : <CartPage />}
+            {isAdmin ? (
+              <AdminPage />
+            ) : (
+              <CartProvider>
+                <CartPage />
+              </CartProvider>
+            )}
           </main>
         </div>
       </CouponProvider>

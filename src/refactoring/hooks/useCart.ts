@@ -41,13 +41,11 @@ export const useCart = () => {
     });
   };
 
-  const calculateTotal = () => {
-    return {
-      totalBeforeDiscount,
-      totalAfterDiscount,
-      totalDiscount,
-    };
-  };
+  const calculateTotal = () => ({
+    totalBeforeDiscount,
+    totalAfterDiscount,
+    totalDiscount,
+  });
 
   return {
     cart,

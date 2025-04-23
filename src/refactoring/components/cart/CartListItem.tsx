@@ -1,17 +1,13 @@
 import { getAppliedDiscount } from "../../hooks/utils/discountUtils";
 import type { CartItem } from "../../../types";
+import { useCartContext } from "../../provider/CartProvider";
 
 interface CartListItemProps {
   item: CartItem;
-  updateQuantity: (productId: string, quantity: number) => void;
-  removeFromCart: (productId: string) => void;
 }
 
-const CartListItem = ({
-  item,
-  updateQuantity,
-  removeFromCart,
-}: CartListItemProps) => {
+const CartListItem = ({ item }: CartListItemProps) => {
+  const { updateQuantity, removeFromCart } = useCartContext();
   const appliedDiscount = getAppliedDiscount(item);
 
   return (

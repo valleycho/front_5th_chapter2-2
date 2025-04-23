@@ -1,14 +1,14 @@
-import { CartItem, Product } from "../../../types";
+import { Product } from "../../../types";
 import { getMaxDiscount } from "../../hooks/utils/discountUtils";
 import { getRemainingStock } from "../../hooks/utils/productUtils";
+import { useCartContext } from "../../provider/CartProvider";
 
 interface ProductListProps {
   product: Product;
-  cart: CartItem[];
-  addToCart: (product: Product) => void;
 }
 
-const ProductItem = ({ product, cart, addToCart }: ProductListProps) => {
+const ProductItem = ({ product }: ProductListProps) => {
+  const { cart, addToCart } = useCartContext();
   const remainingStock = getRemainingStock(product, cart);
 
   return (
