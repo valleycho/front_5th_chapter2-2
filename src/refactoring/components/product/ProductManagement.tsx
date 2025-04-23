@@ -1,16 +1,9 @@
 import { useToggleShow } from "../../hooks";
-import { useProductAddForm } from "../../hooks/useProductForm";
-import { useProductContext } from "../../provider/ProductProvider";
 import NewProductAddForm from "./NewProductAddForm";
 import NewProductFormToggle from "./NewProductFormToggle";
 
 const ProductManagement = () => {
   const { show, setShow } = useToggleShow();
-
-  const { newProduct, setNewProduct, handleAddNewProduct } =
-    useProductAddForm();
-
-  const { addProduct } = useProductContext();
 
   return (
     <>
@@ -20,13 +13,7 @@ const ProductManagement = () => {
         setShowNewProductForm={setShow}
       />
 
-      {show && (
-        <NewProductAddForm
-          newProduct={newProduct}
-          setNewProduct={setNewProduct}
-          handleAddNewProduct={() => handleAddNewProduct(addProduct, setShow)}
-        />
-      )}
+      {show && <NewProductAddForm setShow={setShow} />}
     </>
   );
 };

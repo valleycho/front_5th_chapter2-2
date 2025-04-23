@@ -1,16 +1,10 @@
-import { Coupon } from "../../../types";
+import { useRegisterCoupon } from "../../hooks";
+import { useCouponContext } from "../../provider/CouponProvider";
 
-interface CouponAddFormProps {
-  newCoupon: Coupon;
-  setNewCoupon: (coupon: Coupon) => void;
-  handleAddCoupon: () => void;
-}
+const CouponAddForm = () => {
+  const { newCoupon, setNewCoupon, handleAddCoupon } = useRegisterCoupon();
+  const { addCoupon } = useCouponContext();
 
-const CouponAddForm = ({
-  newCoupon,
-  setNewCoupon,
-  handleAddCoupon,
-}: CouponAddFormProps) => {
   return (
     <div className="space-y-2 mb-4">
       <input
@@ -55,7 +49,7 @@ const CouponAddForm = ({
         />
       </div>
       <button
-        onClick={handleAddCoupon}
+        onClick={() => handleAddCoupon(addCoupon)}
         className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
       >
         쿠폰 추가

@@ -1,16 +1,16 @@
-import { Product } from "../../../types";
+import { useProductAddForm } from "../../hooks/useProductForm";
+import { useProductContext } from "../../provider/ProductProvider";
 
 interface NewProductAddFormProps {
-  newProduct: Omit<Product, "id">;
-  setNewProduct: (product: Omit<Product, "id">) => void;
-  handleAddNewProduct: () => void;
+  setShow: (show: boolean) => void;
 }
 
-const NewProductAddForm = ({
-  newProduct,
-  setNewProduct,
-  handleAddNewProduct,
-}: NewProductAddFormProps) => {
+const NewProductAddForm = ({ setShow }: NewProductAddFormProps) => {
+  const { newProduct, setNewProduct, handleAddNewProduct } =
+    useProductAddForm();
+
+  const { addProduct } = useProductContext();
+
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
       <h3 className="text-xl font-semibold mb-2">새 상품 추가</h3>
@@ -72,7 +72,7 @@ const NewProductAddForm = ({
         />
       </div>
       <button
-        onClick={handleAddNewProduct}
+        onClick={() => handleAddNewProduct(addProduct, setShow)}
         className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
       >
         추가

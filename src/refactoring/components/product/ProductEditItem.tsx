@@ -5,17 +5,10 @@ import ProductEditToggle from "./ProductEditToggle";
 
 interface ProductEditItemProps {
   product: Product;
-  products: Product[];
   index: number;
-  onProductUpdate: (product: Product) => void;
 }
 
-const ProductEditItem = ({
-  product,
-  index,
-  products,
-  onProductUpdate,
-}: ProductEditItemProps) => {
+const ProductEditItem = ({ product, index }: ProductEditItemProps) => {
   const { openProductIds, toggleProductAccordion } =
     useToggleProductAccordion();
 
@@ -32,11 +25,7 @@ const ProductEditItem = ({
 
       {openProductIds.has(product.id) && (
         <div className="mt-2">
-          <ProductEditForm
-            product={product}
-            products={products}
-            onProductUpdate={onProductUpdate}
-          />
+          <ProductEditForm product={product} />
         </div>
       )}
     </div>

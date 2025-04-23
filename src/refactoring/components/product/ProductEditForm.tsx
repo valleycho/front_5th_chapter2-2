@@ -1,20 +1,17 @@
 import { Product } from "../../../types";
 import { useProductEditForm } from "../../hooks/useProductForm";
+import { useProductContext } from "../../provider/ProductProvider";
 import ProductEditDiscount from "./ProductEditDiscount";
 import ProductEditInput from "./ProductEditInput";
 import ProductEditWithDiscountTextButton from "./ProductEditWithDiscountTextButton";
 
 interface ProductEditFormProps {
   product: Product;
-  products: Product[];
-  onProductUpdate: (product: Product) => void;
 }
 
-const ProductEditForm = ({
-  product,
-  products,
-  onProductUpdate,
-}: ProductEditFormProps) => {
+const ProductEditForm = ({ product }: ProductEditFormProps) => {
+  const { products, updateProduct } = useProductContext();
+
   const {
     editingProduct,
     setEditingProduct,
@@ -53,7 +50,7 @@ const ProductEditForm = ({
               product.id,
               parseInt(value),
               products,
-              onProductUpdate,
+              updateProduct,
               setEditingProduct
             )
           }
@@ -65,10 +62,10 @@ const ProductEditForm = ({
           product={product}
           products={products}
           setEditingProduct={setEditingProduct}
-          onProductUpdate={onProductUpdate}
+          onProductUpdate={updateProduct}
         />
         <button
-          onClick={() => handleEditComplete(onProductUpdate)}
+          onClick={() => handleEditComplete(updateProduct)}
           className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mt-2"
         >
           수정 완료
