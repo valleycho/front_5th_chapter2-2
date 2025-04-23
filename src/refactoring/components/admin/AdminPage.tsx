@@ -1,24 +1,9 @@
 import CouponManagement from "../\bcoupon/CouponManagement";
-import { Coupon, Product } from "../../../types";
 import MemberGrade from "../memberGrade/MemberGrade";
 import ProductEditManagement from "../product/ProductEditManagement";
 import ProductManagement from "../product/ProductManagement";
 
-interface Props {
-  products: Product[];
-  coupons: Coupon[];
-  onProductUpdate: (updatedProduct: Product) => void;
-  onProductAdd: (newProduct: Product) => void;
-  onCouponAdd: (newCoupon: Coupon) => void;
-}
-
-export const AdminPage = ({
-  products,
-  coupons,
-  onProductUpdate,
-  onProductAdd,
-  onCouponAdd,
-}: Props) => {
+export const AdminPage = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">관리자 페이지</h1>
@@ -26,14 +11,11 @@ export const AdminPage = ({
         <div>
           <MemberGrade />
 
-          <ProductManagement onProductAdd={onProductAdd} />
+          <ProductManagement />
 
-          <ProductEditManagement
-            products={products}
-            onProductUpdate={onProductUpdate}
-          />
+          <ProductEditManagement />
         </div>
-        <CouponManagement coupons={coupons} onCouponAdd={onCouponAdd} />
+        <CouponManagement />
       </div>
     </div>
   );

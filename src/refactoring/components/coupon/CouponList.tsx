@@ -1,10 +1,8 @@
-import { Coupon } from "../../../types";
+import { useCouponContext } from "../../provider/CouponProvider";
 
-interface CouponListProps {
-  coupons: Coupon[];
-}
+const CouponList = () => {
+  const { coupons } = useCouponContext();
 
-const CouponList = ({ coupons }: CouponListProps) => {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-2">현재 쿠폰 목록</h3>

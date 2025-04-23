@@ -1,16 +1,14 @@
 import { Coupon } from "../../../types";
+import { useCouponContext } from "../../provider/CouponProvider";
 
 interface CouponApplyProps {
-  coupons: Coupon[];
   applyCoupon: (coupon: Coupon) => void;
   selectedCoupon: Coupon | null;
 }
 
-const CouponApply = ({
-  coupons,
-  applyCoupon,
-  selectedCoupon,
-}: CouponApplyProps) => {
+const CouponApply = ({ applyCoupon, selectedCoupon }: CouponApplyProps) => {
+  const { coupons } = useCouponContext();
+
   return (
     <div className="mt-6 bg-white p-4 rounded shadow">
       <h2 className="text-2xl font-semibold mb-2">쿠폰 적용</h2>

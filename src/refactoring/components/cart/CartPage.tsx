@@ -1,15 +1,10 @@
 import CouponApply from "../\bcoupon/CouponApply.tsx";
-import { Coupon, Product } from "../../../types.ts";
 import { useCart } from "../../hooks/index.ts";
 import ProductList from "../product/ProductList.tsx";
 import CartList from "./CartList.tsx";
 import CartOrderSummary from "./CartOrderSummary.tsx";
-interface Props {
-  products: Product[];
-  coupons: Coupon[];
-}
 
-export const CartPage = ({ products, coupons }: Props) => {
+export const CartPage = () => {
   const {
     cart,
     addToCart,
@@ -27,7 +22,7 @@ export const CartPage = ({ products, coupons }: Props) => {
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">장바구니</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ProductList products={products} cart={cart} addToCart={addToCart} />
+        <ProductList cart={cart} addToCart={addToCart} />
         <div>
           <h2 className="text-2xl font-semibold mb-4">장바구니 내역</h2>
 
@@ -38,7 +33,6 @@ export const CartPage = ({ products, coupons }: Props) => {
           />
 
           <CouponApply
-            coupons={coupons}
             applyCoupon={applyCoupon}
             selectedCoupon={selectedCoupon}
           />

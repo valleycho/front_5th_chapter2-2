@@ -1,18 +1,16 @@
-import { Product } from "../../../types";
 import { useToggleShow } from "../../hooks";
 import { useProductAddForm } from "../../hooks/useProductForm";
+import { useProductContext } from "../../provider/ProductProvider";
 import NewProductAddForm from "./NewProductAddForm";
 import NewProductFormToggle from "./NewProductFormToggle";
 
-interface ProductManagementProps {
-  onProductAdd: (product: Product) => void;
-}
-
-const ProductManagement = ({ onProductAdd }: ProductManagementProps) => {
+const ProductManagement = () => {
   const { show, setShow } = useToggleShow();
 
   const { newProduct, setNewProduct, handleAddNewProduct } =
     useProductAddForm();
+
+  const { addProduct } = useProductContext();
 
   return (
     <>
@@ -26,7 +24,7 @@ const ProductManagement = ({ onProductAdd }: ProductManagementProps) => {
         <NewProductAddForm
           newProduct={newProduct}
           setNewProduct={setNewProduct}
-          handleAddNewProduct={() => handleAddNewProduct(onProductAdd, setShow)}
+          handleAddNewProduct={() => handleAddNewProduct(addProduct, setShow)}
         />
       )}
     </>

@@ -1,15 +1,9 @@
-import { Product } from "../../../types";
+import { useProductContext } from "../../provider/ProductProvider";
 import ProductEditItem from "./ProductEditItem";
 
-interface ProductEditManagementProps {
-  products: Product[];
-  onProductUpdate: (product: Product) => void;
-}
+const ProductEditManagement = () => {
+  const { products, updateProduct } = useProductContext();
 
-const ProductEditManagement = ({
-  products,
-  onProductUpdate,
-}: ProductEditManagementProps) => {
   return (
     <div className="space-y-2">
       {products.map((product, index) => (
@@ -18,7 +12,7 @@ const ProductEditManagement = ({
           product={product}
           products={products}
           index={index}
-          onProductUpdate={onProductUpdate}
+          onProductUpdate={updateProduct}
         />
       ))}
     </div>

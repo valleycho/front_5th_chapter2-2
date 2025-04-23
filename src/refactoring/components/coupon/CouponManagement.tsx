@@ -1,15 +1,11 @@
-import { Coupon } from "../../../types";
 import { useRegisterCoupon } from "../../hooks";
+import { useCouponContext } from "../../provider/CouponProvider";
 import CouponAddForm from "./CouponAddForm";
 import CouponList from "./CouponList";
 
-interface CouponManagementProps {
-  coupons: Coupon[];
-  onCouponAdd: (coupon: Coupon) => void;
-}
-
-const CouponManagement = ({ coupons, onCouponAdd }: CouponManagementProps) => {
+const CouponManagement = () => {
   const { newCoupon, setNewCoupon, handleAddCoupon } = useRegisterCoupon();
+  const { addCoupon } = useCouponContext();
 
   return (
     <div>
@@ -18,10 +14,10 @@ const CouponManagement = ({ coupons, onCouponAdd }: CouponManagementProps) => {
         <CouponAddForm
           newCoupon={newCoupon}
           setNewCoupon={setNewCoupon}
-          handleAddCoupon={() => handleAddCoupon(onCouponAdd)}
+          handleAddCoupon={() => handleAddCoupon(addCoupon)}
         />
 
-        <CouponList coupons={coupons} />
+        <CouponList />
       </div>
     </div>
   );
