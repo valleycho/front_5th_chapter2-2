@@ -3,7 +3,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 
 async function enableMocking() {
-  if (import.meta.env.VITE_RUN_MODE !== "api-mock") {
+  if (
+    import.meta.env.VITE_RUN_MODE !== "api-mock" &&
+    import.meta.env.MODE !== "production"
+  ) {
     return;
   }
 

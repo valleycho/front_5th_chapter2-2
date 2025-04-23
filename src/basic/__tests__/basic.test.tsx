@@ -406,7 +406,7 @@ describe("basic > ", () => {
       ];
 
       test("쿠폰 없이 총액을 올바르게 계산해야 합니다.", () => {
-        const result = cartUtils.calculateCartTotal(cart, null);
+        const result = cartUtils.calculateCartTotal(cart, null, null);
         expect(result.totalBeforeDiscount).toBe(400);
         expect(result.totalAfterDiscount).toBe(380);
         expect(result.totalDiscount).toBe(20);
@@ -419,7 +419,7 @@ describe("basic > ", () => {
           discountType: "amount",
           discountValue: 50,
         };
-        const result = cartUtils.calculateCartTotal(cart, coupon);
+        const result = cartUtils.calculateCartTotal(cart, coupon, null);
         expect(result.totalAfterDiscount).toBe(330);
         expect(result.totalDiscount).toBe(70);
       });
@@ -431,7 +431,7 @@ describe("basic > ", () => {
           discountType: "percentage",
           discountValue: 10,
         };
-        const result = cartUtils.calculateCartTotal(cart, coupon);
+        const result = cartUtils.calculateCartTotal(cart, coupon, null);
         expect(result.totalAfterDiscount).toBe(342);
         expect(result.totalDiscount).toBe(58);
       });
@@ -532,7 +532,7 @@ describe("basic > ", () => {
         result.current.applyCoupon(testCoupon);
       });
 
-      const total = result.current.calculateTotal();
+      const total = result.current.calculateTotal(null);
       expect(total.totalBeforeDiscount).toBe(200);
       expect(total.totalAfterDiscount).toBe(180);
       expect(total.totalDiscount).toBe(20);
