@@ -1,6 +1,5 @@
 import { CartItem, Coupon, Grade } from "../../../types";
-import { getCouponDiscount } from "./couponUtils";
-import { getMaxProductDiscount, getMemberGradeDiscount, getTotalAfterProductDiscount, getTotalBeforeProductDiscount } from "./discountUtils";
+import { getCouponDiscount, getMaxProductDiscount, getMemberGradeDiscount, getTotalAfterProductDiscount, getTotalBeforeProductDiscount } from "./discountUtils";
 
 export const calculateItemTotal = (item: CartItem) => {
   const basePrice = item.product.price * item.quantity;

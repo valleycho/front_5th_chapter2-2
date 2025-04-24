@@ -14,7 +14,12 @@ import { CartItem, Coupon, Product } from "../../types";
 import { getRemainingStock } from "../../refactoring/hooks/utils/productUtils";
 import {
   getAppliedDiscount,
+  getCouponDiscount,
   getMaxDiscount,
+  getMaxProductDiscount,
+  getMemberGradeDiscount,
+  getTotalAfterProductDiscount,
+  getTotalBeforeProductDiscount,
 } from "../../refactoring/hooks/utils/discountUtils";
 import {
   useLocalStorage,
@@ -26,8 +31,13 @@ import { ProductProvider } from "../../refactoring/provider/ProductProvider";
 import { CouponProvider } from "../../refactoring/provider/CouponProvider";
 import { CartProvider } from "../../refactoring/provider/CartProvider";
 import { MemberProvider } from "../../refactoring/provider/MemberProvider";
-import { mockMember } from "../../refactoring/mocks/handlers";
+import { mockMember, mockMemberGrade } from "../../refactoring/mocks/handlers";
 import { server } from "../../refactoring/mocks/server";
+import {
+  calculateItemTotal,
+  getMaxApplicableDiscount,
+  updateCartItemQuantity,
+} from "../../refactoring/hooks/utils/cartUtils";
 
 const mockProducts: Product[] = [
   {
@@ -303,34 +313,81 @@ describe("advanced > ", () => {
   });
 
   describe("utils 테스트", () => {
-    describe("productUtils 테스트", () => {
-      test("getRemainingStock 장바구니가 비어있는 경우의 재고", () => {
-        const dummyCart: CartItem[] = [];
-        const dummyProduct = mockProducts[0];
-
-        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
-
-        expect(remainingStock).toBe(dummyProduct.stock);
-      });
-
-      test("getRemainingStock 장바구니에 해당 상품이 있는 경우의 재고", () => {
+    describe("cartUtils 테스트", () => {
+      test("getMaxApplicableDiscount 최대 적용 할인율 확인", () => {
         const dummyCart: CartItem[] = [
-          { product: mockProducts[0], quantity: 1 },
+          { product: mockProducts[0], quantity: 20 },
         ];
-        const dummyProduct = mockProducts[0];
 
-        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
+        const maxApplicableDiscount = getMaxApplicableDiscount(dummyCart[0]);
 
-        expect(remainingStock).toBe(dummyProduct.stock - 1);
+        expect(maxApplicableDiscount).toBe(
+          mockProducts[0].discounts[mockProducts[0].discounts.length - 1].rate
+        );
       });
 
-      test("getRemainingStock 장바구니에 해당 상품이 없는 경우의 재고", () => {
-        const dummyCart: CartItem[] = [];
-        const dummyProduct = mockProducts[0];
+      test("calculateItemTotal 상품 할인이 적용된 후 총 금액 확인", () => {
+        const dummyCart: CartItem[] = [
+          { product: mockProducts[0], quantity: 20 },
+        ];
 
-        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
+        const maxApplicableDiscount = getMaxApplicableDiscount(dummyCart[0]);
 
-        expect(remainingStock).toBe(dummyProduct.stock);
+        const basePrice = mockProducts[0].price * dummyCart[0].quantity;
+        const totalProductDiscount = basePrice * maxApplicableDiscount;
+
+        expect(basePrice - totalProductDiscount).toBe(180000);
+      });
+
+      test("calculateCartTotal 총 금액 확인", () => {
+        const dummyCart: CartItem[] = [
+          { product: mockProducts[0], quantity: 20 },
+        ];
+
+        const totalBeforeProductDiscount =
+          getTotalBeforeProductDiscount(dummyCart);
+        const totalAfterProductDiscount =
+          getTotalAfterProductDiscount(dummyCart);
+
+        const couponDiscount = getCouponDiscount(
+          totalAfterProductDiscount,
+          null
+        );
+        const memberGradeDiscount = getMemberGradeDiscount(
+          totalAfterProductDiscount,
+          null
+        );
+
+        const totalAfterDiscount =
+          totalAfterProductDiscount - couponDiscount - memberGradeDiscount;
+        const totalGradeDiscount = memberGradeDiscount;
+        const totalDiscount = totalBeforeProductDiscount - totalAfterDiscount;
+
+        expect(totalAfterDiscount).toBe(180000);
+        expect(totalGradeDiscount).toBe(0);
+        expect(totalDiscount).toBe(20000);
+      });
+
+      describe("updateCartItemQuantity 장바구니 상품 수량 변경", () => {
+        test("장바구니 상품 수량 변경", () => {
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 20 },
+          ];
+
+          const updatedCart = updateCartItemQuantity(dummyCart, "p1", 10);
+
+          expect(updatedCart[0].quantity).toBe(10);
+        });
+
+        test("장바구니 상품 수량 변경 시 재고 초과 시 재고 최대양 만큼 수량 변경", () => {
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 20 },
+          ];
+
+          const updatedCart = updateCartItemQuantity(dummyCart, "p1", 21);
+
+          expect(updatedCart[0].quantity).toBe(20);
+        });
       });
     });
 
@@ -364,6 +421,149 @@ describe("advanced > ", () => {
 
           expect(appliedDiscount).toBe(0);
         });
+      });
+
+      describe("getMaxProductDiscount 테스트", () => {
+        test("상품 수량이 최소 요구 할인 수량보다 크면 할인율 적용", () => {
+          const dummyProduct = mockProducts[0];
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 20 },
+          ];
+
+          const maxProductDiscount = getMaxProductDiscount(dummyCart[0]);
+
+          expect(maxProductDiscount).toBe(dummyProduct.discounts[0].rate);
+        });
+
+        test("상품 수량이 최소 요구 할인 수량보다 작으면 할인율 미적용", () => {
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 2 },
+          ];
+
+          const maxProductDiscount = getMaxProductDiscount(dummyCart[0]);
+
+          expect(maxProductDiscount).toBe(0);
+        });
+      });
+
+      describe("getTotalBeforeProductDiscount 테스트", () => {
+        test("상품 할인이 적용하기 전 총 금액 확인", () => {
+          const dummyProduct = mockProducts[0];
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 20 },
+          ];
+
+          const totalBeforeProductDiscount =
+            getTotalBeforeProductDiscount(dummyCart);
+
+          expect(totalBeforeProductDiscount).toBe(dummyProduct.price * 20);
+        });
+      });
+
+      describe("getTotalAfterProductDiscount 테스트", () => {
+        test("상품 할인이 적용된 후 총 금액 확인", () => {
+          const dummyCart: CartItem[] = [
+            { product: mockProducts[0], quantity: 20 },
+          ];
+
+          const totalAfterProductDiscount =
+            getTotalAfterProductDiscount(dummyCart);
+          const totalProductDiscount = dummyCart.reduce((acc, item) => {
+            return acc + calculateItemTotal(item);
+          }, 0);
+
+          expect(totalAfterProductDiscount).toBe(totalProductDiscount);
+        });
+      });
+
+      describe("getMemberGradeDiscount 테스트", () => {
+        test("멤버 등급이 없으면 할인율 적용 안됨", () => {
+          const totalAfterProductDiscount = 100000;
+
+          const memberGradeDiscount = getMemberGradeDiscount(
+            totalAfterProductDiscount,
+            null
+          );
+
+          expect(memberGradeDiscount).toBe(0);
+        });
+
+        test("멤버 등급이 있으면 할인율 적용 됨", () => {
+          const totalAfterProductDiscount = 10000;
+
+          const memberGradeDiscount = getMemberGradeDiscount(
+            totalAfterProductDiscount,
+            mockMemberGrade[0]
+          );
+
+          expect(memberGradeDiscount).toBe(300);
+        });
+      });
+
+      describe("getCouponDiscount 테스트", () => {
+        test("쿠폰이 없으면 할인율 적용 안됨", () => {
+          const totalAfterProductDiscount = 10000;
+
+          const couponDiscount = getCouponDiscount(
+            totalAfterProductDiscount,
+            null
+          );
+
+          expect(couponDiscount).toBe(0);
+        });
+
+        test("쿠폰이 있으면 할인율 적용 됨(할인유형: 퍼센트)", () => {
+          const totalAfterProductDiscount = 10000;
+
+          const couponDiscount = getCouponDiscount(
+            totalAfterProductDiscount,
+            mockCoupons[1]
+          );
+
+          expect(couponDiscount).toBe(1000);
+        });
+
+        test("쿠폰이 있으면 할인율 적용 됨(할인유형: 정액)", () => {
+          const totalAfterProductDiscount = 10000;
+
+          const couponDiscount = getCouponDiscount(
+            totalAfterProductDiscount,
+            mockCoupons[0]
+          );
+
+          expect(couponDiscount).toBe(5000);
+        });
+      });
+    });
+
+    describe("productUtils 테스트", () => {
+      test("getRemainingStock 장바구니가 비어있는 경우의 재고", () => {
+        const dummyCart: CartItem[] = [];
+        const dummyProduct = mockProducts[0];
+
+        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
+
+        expect(remainingStock).toBe(dummyProduct.stock);
+      });
+
+      test("getRemainingStock 장바구니에 해당 상품이 있는 경우의 재고", () => {
+        const dummyCart: CartItem[] = [
+          { product: mockProducts[0], quantity: 1 },
+        ];
+        const dummyProduct = mockProducts[0];
+
+        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
+
+        expect(remainingStock).toBe(dummyProduct.stock - 1);
+      });
+
+      test("getRemainingStock 장바구니에 해당 상품이 없는 경우의 재고", () => {
+        const dummyCart: CartItem[] = [];
+        const dummyProduct = mockProducts[0];
+
+        const remainingStock = getRemainingStock(dummyProduct, dummyCart);
+
+        expect(remainingStock).toBe(dummyProduct.stock);
       });
     });
   });
