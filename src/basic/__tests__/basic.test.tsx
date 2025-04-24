@@ -17,7 +17,6 @@ import { ProductProvider } from "../../refactoring/provider/ProductProvider";
 import { CouponProvider } from "../../refactoring/provider/CouponProvider";
 import { CartProvider } from "../../refactoring/provider/CartProvider";
 import { MemberProvider } from "../../refactoring/provider/MemberProvider";
-import { mockMember } from "../../refactoring/mocks/handlers";
 import { server } from "../../refactoring/mocks/server";
 
 const mockProducts: Product[] = [
@@ -79,7 +78,7 @@ const TestAdminPage = () => {
   return (
     <ProductProvider initialProducts={products}>
       <CouponProvider initialCoupons={coupons}>
-        <MemberProvider initialMember={mockMember}>
+        <MemberProvider>
           <AdminPage />
         </MemberProvider>
       </CouponProvider>
@@ -98,7 +97,7 @@ describe("basic > ", () => {
       render(
         <ProductProvider initialProducts={mockProducts}>
           <CouponProvider initialCoupons={mockCoupons}>
-            <MemberProvider initialMember={mockMember}>
+            <MemberProvider>
               <CartProvider>
                 <CartPage />
               </CartProvider>

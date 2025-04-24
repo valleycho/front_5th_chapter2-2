@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { afterAll, afterEach, beforeAll, describe, expect, test } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vitest";
 import {
   act,
   fireEvent,
   render,
   renderHook,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import { CartPage } from "../../refactoring/components/cart/CartPage";
@@ -22,8 +31,17 @@ import {
   getTotalBeforeProductDiscount,
 } from "../../refactoring/hooks/utils/discountUtils";
 import {
+  initialGrade,
+  useCart,
+  useCoupons,
+  useDiscount,
+  useGrade,
   useLocalStorage,
+  useNewGrade,
   useProducts,
+  useRegisterCoupon,
+  useSelectedCoupon,
+  useSelectedGrade,
   useToggleProductAccordion,
   useToggleShow,
 } from "../../refactoring/hooks";
@@ -31,13 +49,19 @@ import { ProductProvider } from "../../refactoring/provider/ProductProvider";
 import { CouponProvider } from "../../refactoring/provider/CouponProvider";
 import { CartProvider } from "../../refactoring/provider/CartProvider";
 import { MemberProvider } from "../../refactoring/provider/MemberProvider";
-import { mockMember, mockMemberGrade } from "../../refactoring/mocks/handlers";
+import { mockMemberGrade } from "../../refactoring/mocks/handlers";
 import { server } from "../../refactoring/mocks/server";
 import {
   calculateItemTotal,
   getMaxApplicableDiscount,
   updateCartItemQuantity,
 } from "../../refactoring/hooks/utils/cartUtils";
+import { useAdmin } from "../../refactoring/hooks/useAdmin";
+import {
+  initialCoupons,
+  initialRegisterCoupon,
+} from "../../refactoring/constants/coupon.constants";
+import { useProductEditForm } from "../../refactoring/hooks/useProductForm";
 
 const mockProducts: Product[] = [
   {
@@ -98,7 +122,7 @@ const TestAdminPage = () => {
   return (
     <ProductProvider initialProducts={products}>
       <CouponProvider initialCoupons={coupons}>
-        <MemberProvider initialMember={mockMember}>
+        <MemberProvider>
           <AdminPage />
         </MemberProvider>
       </CouponProvider>
@@ -117,7 +141,7 @@ describe("advanced > ", () => {
       render(
         <ProductProvider initialProducts={mockProducts}>
           <CouponProvider initialCoupons={mockCoupons}>
-            <MemberProvider initialMember={mockMember}>
+            <MemberProvider>
               <CartProvider>
                 <CartPage />
               </CartProvider>
@@ -569,6 +593,84 @@ describe("advanced > ", () => {
   });
 
   describe("hooks 테스트", () => {
+    describe("useAdmin 테스트", () => {
+      test("useAdmin 기본 비활성화", () => {
+        const { result } = renderHook(() => useAdmin());
+
+        expect(result.current.isAdmin).toBe(false);
+      });
+
+      test("useAdmin 클릭시 활성화", () => {
+        const { result } = renderHook(() => useAdmin());
+
+        act(() => {
+          result.current.handleToggleAdmin();
+        });
+
+        expect(result.current.isAdmin).toBe(true);
+      });
+    });
+
+    describe("useCoupon 테스트", () => {
+      describe("useCoupons 테스트", () => {
+        test("useCoupon 기본 쿠폰 목록 확인", () => {
+          const { result } = renderHook(() => useCoupons(initialCoupons));
+
+          expect(result.current.coupons.length).toBe(2);
+        });
+
+        test("useCoupon 쿠폰 추가 잘되는지 체크", () => {
+          const { result } = renderHook(() => useCoupons(initialCoupons));
+          const dummyCoupon = initialCoupons[0];
+
+          act(() => {
+            result.current.addCoupon(dummyCoupon);
+          });
+
+          expect(result.current.coupons.length).toBe(3);
+        });
+      });
+
+      describe("useSelectedCoupon 테스트", () => {
+        test("useSelectedCoupon 기본 선택된 쿠폰 없음", () => {
+          const { result } = renderHook(() => useSelectedCoupon());
+
+          expect(result.current.selectedCoupon).toBeNull();
+        });
+
+        test("useSelectedCoupon 쿠폰 선택", () => {
+          const { result } = renderHook(() => useSelectedCoupon());
+          const dummyCoupon = initialCoupons[0];
+
+          act(() => {
+            result.current.applyCoupon(dummyCoupon);
+          });
+
+          expect(result.current.selectedCoupon).toBe(dummyCoupon);
+        });
+      });
+
+      describe("useRegisterCoupon 테스트", () => {
+        test("useRegisterCoupon 기본 쿠폰 등록 폼 확인", () => {
+          const { result } = renderHook(() => useRegisterCoupon());
+
+          expect(result.current.newCoupon).toBe(initialRegisterCoupon);
+        });
+
+        test("useRegisterCoupon 새 쿠폰 등록", () => {
+          const { result } = renderHook(() => useRegisterCoupon());
+          const mockOnCouponAdd = vi.fn();
+
+          act(() => {
+            result.current.handleAddCoupon(mockOnCouponAdd);
+          });
+
+          expect(mockOnCouponAdd).toHaveBeenCalledTimes(1);
+          expect(result.current.newCoupon).toBe(initialRegisterCoupon);
+        });
+      });
+    });
+
     describe("useLocalStorage 테스트", () => {
       test("getLocalStorage 저장되고 잘 가져오는지 확인", () => {
         const { result } = renderHook(() => useLocalStorage());
@@ -617,6 +719,155 @@ describe("advanced > ", () => {
         expect(productsResult.current.products.length).toBe(
           mockProducts.length
         );
+      });
+    });
+
+    describe("useGrade 테스트", () => {
+      describe("useNewGrade 테스트", () => {
+        test("useNewGrade 기본 등록 폼 확인", () => {
+          const { result } = renderHook(() => useNewGrade());
+
+          expect(result.current.newGrade).toBe(initialGrade);
+        });
+
+        test("useNewGrade 새 등급 등록", () => {
+          const { result } = renderHook(() => useNewGrade());
+          const dummyGrade = mockMemberGrade[0];
+
+          act(() => {
+            result.current.setNewGrade(dummyGrade);
+          });
+
+          expect(result.current.newGrade).toBe(dummyGrade);
+        });
+      });
+
+      describe("useGrade 테스트", () => {
+        test("msw 서버에서 등급 목록 가져오는지 확인", async () => {
+          const { result } = renderHook(() => useGrade());
+
+          await waitFor(() => {
+            expect(result.current.grades.length).toBe(mockMemberGrade.length);
+          });
+
+          expect(result.current.grades).toEqual(mockMemberGrade);
+        });
+      });
+
+      describe("useSelectedGrade 테스트", () => {
+        test("useSelectedGrade 기본 선택된 등급 없음", () => {
+          const { result } = renderHook(() => useSelectedGrade());
+
+          expect(result.current.selectedGrade).toBeNull();
+        });
+
+        test("useSelectedGrade 등급 선택", () => {
+          const { result } = renderHook(() => useSelectedGrade());
+          const dummyGrade = mockMemberGrade[0];
+
+          act(() => {
+            result.current.applyGrade(dummyGrade);
+          });
+
+          expect(result.current.selectedGrade).toBe(dummyGrade);
+        });
+      });
+    });
+
+    describe("useProduct 테스트", () => {
+      describe("useProducts 테스트", () => {
+        test("useProducts 기본 상품 목록 확인", () => {
+          const { result } = renderHook(() => useProducts(mockProducts));
+
+          expect(result.current.products.length).toBe(mockProducts.length);
+        });
+
+        test("useProducts 상품 수정", () => {
+          const { result } = renderHook(() => useProducts(mockProducts));
+          const dummyProduct = { ...mockProducts[0], name: "상품1-1" };
+
+          act(() => {
+            result.current.updateProduct(dummyProduct);
+          });
+
+          expect(result.current.products[0].name).toEqual("상품1-1");
+        });
+
+        test("useProducts 상품 추가", () => {
+          const { result } = renderHook(() => useProducts(mockProducts));
+          const dummyProduct = mockProducts[0];
+
+          act(() => {
+            result.current.addProduct(dummyProduct);
+          });
+
+          expect(result.current.products.length).toBe(mockProducts.length + 1);
+        });
+      });
+    });
+
+    describe("useProductForm 테스트", () => {
+      describe("useProductEditForm 테스트", () => {
+        test("useProductEditForm 기본 수정 폼 확인", () => {
+          const { result } = renderHook(() => useProductEditForm());
+
+          expect(result.current.editingProduct).toBeNull();
+        });
+
+        test("useProductEditForm 상품 이름 수정", () => {
+          const { result } = renderHook(() => useProductEditForm());
+          const dummyProduct = mockProducts[0];
+
+          act(() => {
+            result.current.handleEditProduct(dummyProduct);
+          });
+
+          act(() => {
+            result.current.handleProductNameUpdate("p1", "새로운 상품명");
+          });
+
+          // 결과 검증
+          expect(result.current.editingProduct?.name).toBe("새로운 상품명");
+        });
+
+        test("useProductEditForm 상품 가격 수정", () => {
+          const { result } = renderHook(() => useProductEditForm());
+          const dummyProduct = mockProducts[0];
+
+          act(() => {
+            result.current.handleEditProduct(dummyProduct);
+          });
+
+          act(() => {
+            result.current.handlePriceUpdate("p1", 5000);
+          });
+
+          expect(result.current.editingProduct?.price).toBe(5000);
+        });
+
+        test("handleStockUpdate 상품 재고 수정", () => {
+          const { result } = renderHook(() => useProductEditForm());
+          const dummyProduct = mockProducts[0];
+          const mockUpdateProduct = vi.fn();
+          const mockSetEditingProduct = vi.fn();
+
+          act(() => {
+            result.current.handleEditProduct(dummyProduct);
+          });
+
+          act(() => {
+            result.current.handleStockUpdate(
+              "p1",
+              10,
+              mockProducts,
+              mockUpdateProduct,
+              mockSetEditingProduct
+            );
+          });
+
+          expect(mockUpdateProduct).toHaveBeenCalledTimes(1);
+          expect(mockSetEditingProduct).toHaveBeenCalledTimes(1);
+        });
       });
     });
 
@@ -673,6 +924,61 @@ describe("advanced > ", () => {
 
           expect(result.current.show).toBe(true);
         });
+      });
+    });
+
+    describe("useCart 테스트", () => {
+      test("useCart 장바구니 추가 및 제거", () => {
+        const { result } = renderHook(() => useCart());
+
+        act(() => {
+          result.current.addToCart(mockProducts[0]);
+        });
+
+        expect(result.current.cart.length).toBe(1);
+
+        act(() => {
+          result.current.removeFromCart(mockProducts[0].id);
+        });
+
+        expect(result.current.cart.length).toBe(0);
+      });
+
+      test("useCart 장바구니 수량 수정", () => {
+        const { result } = renderHook(() => useCart());
+
+        act(() => {
+          result.current.addToCart(mockProducts[0]);
+        });
+
+        act(() => {
+          result.current.updateQuantity(mockProducts[0].id, 2);
+        });
+
+        expect(result.current.cart[0].quantity).toBe(2);
+      });
+    });
+
+    describe("useDiscount 테스트", () => {
+      test("useDiscount 할인 추가 및 제거", () => {
+        const { result } = renderHook(() => useDiscount());
+        const mockEditingProduct = mockProducts[0];
+        const mockUpdateProduct = vi.fn();
+        const mockSetEditingProduct = vi.fn();
+
+        act(() => {
+          result.current.handleAddDiscount(
+            mockEditingProduct.id,
+            mockProducts,
+            mockUpdateProduct,
+            mockEditingProduct,
+            mockSetEditingProduct
+          );
+        });
+
+        expect(mockUpdateProduct).toHaveBeenCalledTimes(1);
+        expect(mockSetEditingProduct).toHaveBeenCalledTimes(1);
+        expect(result.current.newDiscount).toEqual({ quantity: 0, rate: 0 });
       });
     });
   });

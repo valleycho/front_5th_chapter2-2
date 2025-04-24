@@ -4,7 +4,6 @@ import { initialCoupons } from "./constants/coupon.constants.ts";
 import { initialProducts } from "./constants/product.constants.ts";
 import { useAdmin } from "./hooks/useAdmin.ts";
 import { useLocalStorage } from "./hooks/useLocalStorage.ts";
-import { mockMember } from "./mocks/handlers.ts";
 import { CartProvider } from "./provider/CartProvider.tsx";
 import { CouponProvider } from "./provider/CouponProvider.tsx";
 import { MemberProvider } from "./provider/MemberProvider.tsx";
@@ -20,7 +19,7 @@ const App = () => {
   return (
     <ProductProvider initialProducts={getLocalStorage("products")}>
       <CouponProvider initialCoupons={getLocalStorage("coupons")}>
-        <MemberProvider initialMember={mockMember}>
+        <MemberProvider>
           <div className="min-h-screen bg-gray-100">
             <nav className="bg-blue-600 text-white p-4">
               <div className="container mx-auto flex justify-between items-center">

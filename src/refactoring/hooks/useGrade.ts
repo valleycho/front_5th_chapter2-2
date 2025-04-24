@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Grade } from "../../types";
 
-const initialGrade = {
+export const initialGrade = {
   id: "",
   name: "",
   discountRate: 0,

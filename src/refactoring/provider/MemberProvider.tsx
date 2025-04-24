@@ -1,28 +1,19 @@
 import { createContext, useContext } from "react";
-import { Grade, Member } from "../../types";
-import { useMember } from "../hooks/useMember";
+import { Grade } from "../../types";
 import { useGrade } from "../hooks";
 
 interface MemberContextType {
-  member: Member;
   grades: Grade[];
   addGrade: (grade: Grade) => void;
 }
 
 const MemberContext = createContext<MemberContextType | undefined>(undefined);
 
-export const MemberProvider = ({
-  children,
-  initialMember,
-}: {
-  children: React.ReactNode;
-  initialMember: Member;
-}) => {
-  const { member } = useMember(initialMember);
+export const MemberProvider = ({ children }: { children: React.ReactNode }) => {
   const { grades, addGrade } = useGrade();
 
   return (
-    <MemberContext.Provider value={{ member, grades, addGrade }}>
+    <MemberContext.Provider value={{ grades, addGrade }}>
       {children}
     </MemberContext.Provider>
   );
